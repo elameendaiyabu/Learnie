@@ -6,7 +6,7 @@
 - [x] Preferred learning styles (e.g., visual, auditory, kinesthetic)
 - [x] Preferred resource types (e.g., video tutorials, written materials, interactive exercises)
 - [x] Preferred difficulty levels (beginner, intermediate, advanced)
-- [] Topics or subject areas
+- [x] Topics or subject areas
 - [] Short-term and long-term learning objectives
 - [] Specific skills or knowledge they want to acquire
 - [] Reasons for learning (e.g., personal interest, professional development, academic requirements)
@@ -38,3 +38,26 @@ Options for gathering content data include:
 - The web app sends the feedback data to the LLM API for analysis.
 - The LLM API analyzes the feedback and returns insights for improving the system.
 - The web app updates the recommendation system based on the insights from the LLM API.
+
+### my prompt
+
+First Name: El-ameen
+
+Last Name: Daiyabu
+
+Department: Software Engineering
+
+Course: Programming
+
+University Level: 300
+
+Preferred Learning Style: Visual
+
+Preferred Resource Type: Video Tutorials
+
+Preferred Difficulty Level: Beginner
+
+Learning Objectives Added:
+learn about js classes and methods
+learn js user defined functions
+this is my data. recommend atleast 10 learning materials for me. return it in json format with title, type, source, link, difficulty, and description
