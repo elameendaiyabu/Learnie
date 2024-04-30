@@ -47,11 +47,12 @@ export default function UserDataForm() {
   async function handleClick(e: { preventDefault: () => void }) {
     e.preventDefault()
 
-    const model = gemini.getGenerativeModel({ model: "gemini-pro" })
+    try {
+      const model = gemini.getGenerativeModel({ model: "gemini-pro" })
 
-    const prompt = `
-    below is my data. recommend atleast 20 learning materials for me. return it in json format with title, type, source, link, difficulty, and description. no need to add the json specifier or backtick or * or ... as i want to be able to parse and render the data on screen.
-                    return result in proper accessible renderable JSON format
+      const prompt = `
+                    i'm seeking recommendations for learning materials based on my preferences
+                    Please provide at least 20 learning materials in JSON format with the following attributes: title, type, source, link, difficulty, and description. Ensure that the property names are double-quoted. Omit the JSON specifier, backticks, asterisks, or ellipses to facilitate parsing and rendering the data on screen.
                     Department: ${department}
 
                     Course: ${course}
@@ -64,16 +65,38 @@ export default function UserDataForm() {
 
                     Preferred Difficulty Level: ${difficulty}
 
-                    Learning Objectives Added: ${learningObjectives}
-
+                    Learning Objectives Added: ${learningObjectives}  
                     
-                    
+                    Here's an example JSON structure with placeholders for the learning materials:
+                    [
+                      {
+                        "title": "...",
+                        "type": "...",
+                        "source": "...",
+                        "link": "...",
+                        "difficulty": "...", 
+                        "description": "..."
+                      },
+                      {
+                        "title": "...",
+                        "type": "...",
+                        "source": "...",
+                        "link": "...",
+                        "difficulty": "...",
+                        "description": "..."
+                      },
+                      ...
+                    ]
+replace the ellipses with actual data when providing the recommendations!
                     `
 
-    const result = await model.generateContent(prompt)
-    const response = result.response
-    const text = JSON.parse(response.text())
-    setGeneratedText(text)
+      const result = await model.generateContent(prompt)
+      const response = result.response
+      const text = JSON.parse(response.text())
+      setGeneratedText(text)
+    } catch (error) {
+      console.log(error)
+    }
 
     // window.location.hash = section
     // scrollToSection(section)
