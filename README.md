@@ -8,8 +8,8 @@
 - [x] Preferred difficulty levels (beginner, intermediate, advanced)
 - [x] Topics or subject areas
 - [] Short-term and long-term learning objectives
-- [] Specific skills or knowledge they want to acquire
-- [] Reasons for learning (e.g., personal interest, professional development, academic requirements)
+- [x] Specific skills or knowledge they want to acquire
+- [x] Reasons for learning (e.g., personal interest, professional development, academic requirements)
 - [] Educational background
 - [] CGPA
 
@@ -39,7 +39,7 @@ Options for gathering content data include:
 - The LLM API analyzes the feedback and returns insights for improving the system.
 - The web app updates the recommendation system based on the insights from the LLM API.
 
-### my prompt
+### my initial prompt
 
 First Name: El-ameen
 

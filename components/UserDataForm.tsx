@@ -7,12 +7,19 @@ import { Label } from "./ui/label"
 import { Input } from "./ui/input"
 import { Button } from "./ui/button"
 import { ArrowRight, Plus, Trash2, X } from "lucide-react"
-import { scrollToSection } from "@/utils/scrollToSection"
-import { runAi } from "@/utils/gemini"
+import RecommendationCard from "./RecommendationCard"
 
-const API_KEY = "AIzaSyCa7FTJp5DyTK4u8HPSBliXO7GDZsx55jk"
+const apiKey = process.env.NEXT_PUBLIC_API_KEY || ""
+const gemini = new GoogleGenerativeAI(apiKey)
 
-const gemini = new GoogleGenerativeAI(API_KEY)
+interface Recomendations {
+  title: string
+  type: string
+  source: string
+  link: string
+  difficulty: string
+  description: string
+}
 
 export default function UserDataForm() {
   const [name, setName] = useState({ firstName: "", lastName: "" })
@@ -25,7 +32,7 @@ export default function UserDataForm() {
   const [learningObjectives, setLearningObjectives] = useState<string[]>([])
   const [objective, setObjective] = useState<string>("")
   const [objectiveInput, setObjectiveInput] = useState(false)
-  const [generatedText, setGeneratedText] = useState("")
+  const [generatedText, setGeneratedText] = useState<Recomendations[]>([])
 
   function AddObjective() {
     setLearningObjectives([...learningObjectives, objective])
@@ -37,12 +44,15 @@ export default function UserDataForm() {
     setLearningObjectives((prevObj) => learningObjectives.filter((_, i) => i !== index))
   }
 
-  async function handleClick(section: string, e: { preventDefault: () => void }) {
+  async function handleClick(e: { preventDefault: () => void }) {
     e.preventDefault()
 
     const model = gemini.getGenerativeModel({ model: "gemini-pro" })
 
-    const prompt = `Department: ${department}
+    const prompt = `
+    below is my data. recommend atleast 20 learning materials for me. return it in json format with title, type, source, link, difficulty, and description. no need to add the json specifier or backtick or * or ... as i want to be able to parse and render the data on screen.
+                    return result in proper accessible renderable JSON format
+                    Department: ${department}
 
                     Course: ${course}
 
@@ -56,17 +66,17 @@ export default function UserDataForm() {
 
                     Learning Objectives Added: ${learningObjectives}
 
-                    this is my data. recommend atleast 20 learning materials for me. return it in json format with title, type, source, link, difficulty, and description. no need to add the json specifier as i want to use it in my code.
+                    
+                    
                     `
 
     const result = await model.generateContent(prompt)
-    const response = await result.response
-    const text = JSON.parse(JSON.stringify(response.text()))
-
+    const response = result.response
+    const text = JSON.parse(response.text())
     setGeneratedText(text)
 
-    window.location.hash = section
-    scrollToSection(section)
+    // window.location.hash = section
+    // scrollToSection(section)
   }
 
   console.log(generatedText)
@@ -79,8 +89,8 @@ export default function UserDataForm() {
         </h1>
         <div className="flex-wrap md:flex justify-center md:justify-around gap-7 mx-auto mb-5 ">
           <div className=" mb-7 sm:mb-0 md:w-[30rem] p-3 bg-neutral-200 rounded-xl">
-            <form onSubmit={(e) => handleClick("recommendations", e)}>
-              <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
+            <form onSubmit={(e) => handleClick(e)}>
+              {/* <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
                 <LabelInputContainer>
                   <Label htmlFor="firstname">First name</Label>
                   <Input
@@ -101,7 +111,7 @@ export default function UserDataForm() {
                     type="text"
                   />
                 </LabelInputContainer>
-              </div>
+              </div> */}
               <LabelInputContainer className="mb-4">
                 <Label htmlFor="department">Department</Label>
                 <select
@@ -235,6 +245,7 @@ export default function UserDataForm() {
               <div className=" flex flex-col gap-3">
                 <div className=" flex gap-4">
                   <Button
+                    className="bg-neutral-800"
                     type="button"
                     onClick={() => {
                       setObjectiveInput(true)
@@ -253,7 +264,7 @@ export default function UserDataForm() {
                   </Button>
                 </div>
 
-                <Button className="w-full" type="submit">
+                <Button className="w-full bg-neutral-800" type="submit">
                   Get Recommendations &nbsp;
                   <ArrowRight />
                 </Button>
@@ -264,12 +275,12 @@ export default function UserDataForm() {
             <h1 className=" text-xl md:text-2xl text-center border-b border-black">
               Preview User Data
             </h1>
-            <p>
+            {/* <p>
               <span className=" font-bold">First Name:</span> {name.firstName}
             </p>
             <p>
               <span className=" font-bold">Last Name:</span> {name.lastName}
-            </p>
+            </p> */}
             <p>
               <span className=" font-bold">Department:</span> {department}
             </p>
@@ -303,9 +314,9 @@ export default function UserDataForm() {
         </h1>
         <div
           id="recommendations"
-          className=" sm:mb-0 md:w-full p-3 bg-neutral-200 rounded-xl justify-center md:justify-around gap-7 mx-auto mb-5 "
+          className=" sm:mb-0 md:w-full p-3 rounded-xl justify-center md:justify-around gap-7 mx-auto mb-5 "
         >
-          <p>{generatedText}</p>
+          <RecommendationCard generatedText={generatedText} />
         </div>
       </div>
     </div>
