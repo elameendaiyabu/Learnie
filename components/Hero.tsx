@@ -18,7 +18,7 @@ export default function Hero({}: Props) {
           <LabelInputContainer className=" max-w-[300px]">
             <Input name="email" id="email" placeholder="Enter Your Email" type="text" />
           </LabelInputContainer>
-          <Button variant="default" className=" bg-neutral-800 mt-[1px]">
+          <Button variant="default" className="  mt-[1px]">
             Sign Up
           </Button>
         </form>
