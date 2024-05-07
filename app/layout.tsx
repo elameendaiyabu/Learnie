@@ -18,14 +18,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <Providers>
-        <body className={inter.className}>
+      <body className={inter.className}>
+        <Providers>
           <div className="flex min-h-screen w-full flex-col">
             <Header />
             <div className=" p-3"> {children}</div>
           </div>
-        </body>
-      </Providers>
+        </Providers>
+      </body>
     </html>
   )
 }
