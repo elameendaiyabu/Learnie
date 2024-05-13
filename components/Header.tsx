@@ -13,6 +13,7 @@ import {
 import { CircleUser, Menu, GraduationCap } from "lucide-react"
 import { ThemeSwitcher } from "./ThemeSwitcher"
 import { createClient } from "@/utils/supabase/server"
+import { signOut } from "@/app/actions"
 
 type Props = {}
 
@@ -108,7 +109,7 @@ export default async function Header({}: Props) {
               <DropdownMenuSeparator />
               {/* <DropdownMenuItem>Settings</DropdownMenuItem> */}
               <DropdownMenuSeparator />
-              <form action="" className="w-full">
+              <form action={signOut} className="w-full">
                 <DropdownMenuItem>
                   <button className=" w-full text-left">Logout</button>
                 </DropdownMenuItem>

@@ -29,12 +29,11 @@ export async function signup(prevState: State, formData: FormData) {
 
   if (error) {
     revalidatePath("/auth/signup")
-    return {
-      error: "Error Signing Up. Try Again",
-    }
+    console.log(error.message)
   }
-
-  redirect("/")
+  if (data) {
+    redirect("/")
+  }
 }
 
 export async function login(prevState: State, formData: FormData) {
@@ -55,4 +54,10 @@ export async function login(prevState: State, formData: FormData) {
   }
 
   redirect("/")
+}
+
+export async function signOut(formData: FormData) {
+  const supabase = createClient()
+
+  await supabase.auth.signOut()
 }

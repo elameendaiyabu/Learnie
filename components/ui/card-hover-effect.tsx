@@ -1,8 +1,12 @@
+"use client"
+
 import { cn } from "@/lib/utils"
+import { createClient } from "@/utils/supabase/client"
 import { AnimatePresence, motion } from "framer-motion"
-import { SquareArrowOutUpRight } from "lucide-react"
+import { Heart, SquareArrowOutUpRight } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
+import { useToast } from "./use-toast"
 
 export const HoverEffect = ({
   items,
@@ -19,15 +23,55 @@ export const HoverEffect = ({
   className?: string
 }) => {
   let [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
+  const { toast } = useToast()
+  const [liked, setLiked] = useState<boolean>(false)
+
+  async function handleLike(
+    e: { preventDefault: () => void },
+    title: string,
+    type: string,
+    source: string,
+    link: string,
+    difficulty: string,
+    description: string
+  ) {
+    e.preventDefault()
+    const supabase = createClient()
+
+    const { data, error } = await supabase
+      .from("liked courses")
+      .insert({
+        title: title,
+        type: type,
+        source: source,
+        link: link,
+        difficulty: difficulty,
+        description: description,
+      })
+      .select()
+
+    if (error) {
+      setLiked(false)
+      console.log(error.message)
+      toast({
+        title: "Login and Try Again",
+      })
+    }
+
+    if (data) {
+      setLiked(true)
+      toast({
+        title: "Course added to likes",
+      })
+    }
+  }
 
   return (
     <div className={cn("grid grid-cols-1 md:grid-cols-2  lg:grid-cols-3  py-10", className)}>
       {items.map((item, idx) => (
-        <Link
-          href={item?.link}
-          key={item?.link}
+        <div
+          key={idx}
           rel="noopener noreferrer"
-          target="_blank"
           className="relative group  block p-2 h-full w-full"
           onMouseEnter={() => setHoveredIndex(idx)}
           onMouseLeave={() => setHoveredIndex(null)}
@@ -49,17 +93,39 @@ export const HoverEffect = ({
               />
             )}
           </AnimatePresence>
-          <Card className="relative">
-            <SquareArrowOutUpRight className="absolute top-0 right-0" />
-            <CardTitle>{item.title}</CardTitle>
-            <CardDescription>{item.description}</CardDescription>
-            <CardDescription className=" text-black/80">
-              <div>Source: {item.source}</div>
-              <div>Type: {item.type}</div>
-              <div>Difficulty: {item.difficulty}</div>
-            </CardDescription>
+          <Card>
+            <div className="grid grid-flow-col justify-between">
+              <form
+                onSubmit={(e) =>
+                  handleLike(
+                    e,
+                    item.title,
+                    item.type,
+                    item.source,
+                    item.link,
+                    item.difficulty,
+                    item.description
+                  )
+                }
+              >
+                <button type="submit">
+                  <Heart className="hover:cursor-pointer hover:fill-red-400" />
+                </button>
+              </form>
+              <SquareArrowOutUpRight className="hover:fill-primary hover:cursor-pointer" />
+            </div>
+
+            <Link href={item.link} target="_blank">
+              <CardTitle>{item.title}</CardTitle>
+              <CardDescription>{item.description}</CardDescription>
+              <CardDescription className=" text-primary">
+                <div>Source: {item.source}</div>
+                <div>Type: {item.type}</div>
+                <div>Difficulty: {item.difficulty}</div>
+              </CardDescription>
+            </Link>
           </Card>
-        </Link>
+        </div>
       ))}
     </div>
   )
@@ -75,7 +141,7 @@ export const Card = ({
   return (
     <div
       className={cn(
-        "rounded-2xl  h-full w-full p-4 overflow-hidden bg-neutral-200 border border-transparent dark:border-white/[0.2] group-hover:border-slate-700 relative z-20",
+        "rounded-2xl  h-full w-full p-4 overflow-hidden bg-muted border border-transparent dark:border-white/[0.2] group-hover:border-slate-700 relative z-20",
         className
       )}
     >
@@ -92,7 +158,7 @@ export const CardTitle = ({
   className?: string
   children: React.ReactNode
 }) => {
-  return <h4 className={cn("text-black font-bold tracking-wide mt-4", className)}>{children}</h4>
+  return <h4 className={cn("text-primary font-bold tracking-wide mt-4", className)}>{children}</h4>
 }
 export const CardDescription = ({
   className,
@@ -102,7 +168,12 @@ export const CardDescription = ({
   children: React.ReactNode
 }) => {
   return (
-    <p className={cn("mt-4 text-black/90 tracking-wide leading-relaxed text-sm", className)}>
+    <p
+      className={cn(
+        "mt-4 text-secondary-foreground tracking-wide leading-relaxed text-sm",
+        className
+      )}
+    >
       {children}
     </p>
   )

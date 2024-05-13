@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { LabelInputContainer } from "./ui/labelInputContainer"
 import { Label } from "./ui/label"
@@ -10,6 +10,8 @@ import { ArrowRight, Plus, Trash2, X } from "lucide-react"
 import RecommendationCard from "./RecommendationCard"
 import { useFormStatus } from "react-dom"
 import { Card, CardContent } from "./ui/card"
+import { useToast } from "./ui/use-toast"
+import { createClient } from "@/utils/supabase/client"
 
 const apiKey = process.env.NEXT_PUBLIC_API_KEY || ""
 const gemini = new GoogleGenerativeAI(apiKey)
@@ -35,7 +37,29 @@ export default function UserDataForm() {
   const [objective, setObjective] = useState<string>("")
   const [objectiveInput, setObjectiveInput] = useState(false)
   const [generatedText, setGeneratedText] = useState<Recomendations[]>([])
-  const { pending } = useFormStatus()
+  const [pending, setPending] = useState<boolean>(false)
+  const { toast } = useToast()
+
+  const supabase = createClient()
+
+  useEffect(() => {
+    async function getUser() {
+      const { data } = await supabase.auth.getUser()
+
+      if (data.user == null) {
+        toast({
+          title: "Log in for a better experience ",
+        })
+      }
+      if (data.user) {
+        toast({
+          title: "Welcome Back!",
+        })
+      }
+    }
+
+    getUser()
+  }, [supabase.auth, toast])
 
   function AddObjective() {
     setLearningObjectives([...learningObjectives, objective])
@@ -49,6 +73,7 @@ export default function UserDataForm() {
 
   async function handleClick(e: { preventDefault: () => void }) {
     e.preventDefault()
+    setPending(true)
 
     try {
       const model = gemini.getGenerativeModel({ model: "gemini-pro" })
@@ -97,7 +122,15 @@ replace the ellipses with actual data when providing the recommendations!
       const response = result.response
       const text = JSON.parse(response.text())
       setGeneratedText(text)
+      toast({
+        title: "Scroll to view recommendations.",
+      })
+      setPending(false)
     } catch (error) {
+      setPending(false)
+      toast({
+        title: "Couldn't get recommendations. Try again!",
+      })
       console.log(error)
     }
 
@@ -250,7 +283,7 @@ replace the ellipses with actual data when providing the recommendations!
                 <div className=" flex flex-col gap-3">
                   <div className=" flex gap-4">
                     <Button
-                      variant="secondary"
+                      variant="outline"
                       type="button"
                       onClick={() => {
                         setObjectiveInput(true)
@@ -270,7 +303,7 @@ replace the ellipses with actual data when providing the recommendations!
                   </div>
 
                   <Button className="w-full" type="submit" disabled={pending}>
-                    Get Recommendations &nbsp;
+                    {pending ? "Fetching Recommendations" : "Get Recommendations"} &nbsp;
                     <ArrowRight />
                   </Button>
                 </div>
