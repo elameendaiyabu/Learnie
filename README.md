@@ -48,10 +48,6 @@ Options for gathering content data include:
 
 ### my initial prompt
 
-First Name: El-ameen
-
-Last Name: Daiyabu
-
 Department: Software Engineering
 
 Course: Programming
