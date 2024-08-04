@@ -1,82 +1,62 @@
-"use client"
+"use client";
 
-import React, { useEffect, useState } from "react"
-import { GoogleGenerativeAI } from "@google/generative-ai"
-import { LabelInputContainer } from "./ui/labelInputContainer"
-import { Label } from "./ui/label"
-import { Input } from "./ui/input"
-import { Button } from "./ui/button"
-import { ArrowRight, Plus, Trash2, X } from "lucide-react"
-import RecommendationCard from "./RecommendationCard"
-import { useFormStatus } from "react-dom"
-import { Card, CardContent } from "./ui/card"
-import { useToast } from "./ui/use-toast"
-import { createClient } from "@/utils/supabase/client"
+import React, { useEffect, useState } from "react";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { LabelInputContainer } from "./ui/labelInputContainer";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { ArrowRight, Plus, Trash2, X } from "lucide-react";
+import RecommendationCard from "./RecommendationCard";
+import { useFormStatus } from "react-dom";
+import { Card, CardContent } from "./ui/card";
+import { useToast } from "./ui/use-toast";
 
-const apiKey = process.env.NEXT_PUBLIC_API_KEY || ""
-const gemini = new GoogleGenerativeAI(apiKey)
+const apiKey = process.env.NEXT_PUBLIC_API_KEY || "";
+const gemini = new GoogleGenerativeAI(apiKey);
 
 interface Recomendations {
-  title: string
-  type: string
-  source: string
-  link: string
-  difficulty: string
-  description: string
+  title: string;
+  type: string;
+  source: string;
+  link: string;
+  difficulty: string;
+  description: string;
 }
 
 export default function UserDataForm() {
-  const [name, setName] = useState({ firstName: "", lastName: "" })
-  const [department, setDepartment] = useState("")
-  const [course, setCourse] = useState("")
-  const [level, setLevel] = useState("")
-  const [learningStyle, setLearningStyle] = useState("")
-  const [resourceType, setResourceType] = useState("")
-  const [difficulty, setDifficulty] = useState("")
-  const [learningObjectives, setLearningObjectives] = useState<string[]>([])
-  const [objective, setObjective] = useState<string>("")
-  const [objectiveInput, setObjectiveInput] = useState(false)
-  const [generatedText, setGeneratedText] = useState<Recomendations[]>([])
-  const [pending, setPending] = useState<boolean>(false)
-  const { toast } = useToast()
-
-  const supabase = createClient()
-
-  useEffect(() => {
-    async function getUser() {
-      const { data } = await supabase.auth.getUser()
-
-      if (data.user == null) {
-        toast({
-          title: "Log in for a better experience ",
-        })
-      }
-      if (data.user) {
-        toast({
-          title: "Welcome Back!",
-        })
-      }
-    }
-
-    getUser()
-  }, [supabase.auth, toast])
+  const [name, setName] = useState({ firstName: "", lastName: "" });
+  const [department, setDepartment] = useState("");
+  const [course, setCourse] = useState("");
+  const [level, setLevel] = useState("");
+  const [learningStyle, setLearningStyle] = useState("");
+  const [resourceType, setResourceType] = useState("");
+  const [difficulty, setDifficulty] = useState("");
+  const [learningObjectives, setLearningObjectives] = useState<string[]>([]);
+  const [objective, setObjective] = useState<string>("");
+  const [objectiveInput, setObjectiveInput] = useState(false);
+  const [generatedText, setGeneratedText] = useState<Recomendations[]>([]);
+  const [pending, setPending] = useState<boolean>(false);
+  const { toast } = useToast();
 
   function AddObjective() {
-    setLearningObjectives([...learningObjectives, objective])
-    setObjectiveInput(false)
-    setObjective("")
+    setLearningObjectives([...learningObjectives, objective]);
+    setObjectiveInput(false);
+    setObjective("");
   }
 
   function DeleteObjective(index: number) {
-    setLearningObjectives((prevObj) => learningObjectives.filter((_, i) => i !== index))
+    setLearningObjectives((prevObj) =>
+      learningObjectives.filter((_, i) => i !== index),
+    );
   }
 
   async function handleClick(e: { preventDefault: () => void }) {
-    e.preventDefault()
-    setPending(true)
+    e.preventDefault();
+    setPending(true);
 
     try {
-      const model = gemini.getGenerativeModel({ model: "gemini-pro" })
+      const model = gemini.getGenerativeModel({ model: "gemini-pro" });
 
       const prompt = `
                     i'm seeking recommendations for learning materials based on my preferences
@@ -116,34 +96,34 @@ export default function UserDataForm() {
                       ...
                     ]
 replace the ellipses with actual data when providing the recommendations!
-                    `
+                    `;
 
-      const result = await model.generateContent(prompt)
-      const response = result.response
-      const text = JSON.parse(response.text())
-      setGeneratedText(text)
+      const result = await model.generateContent(prompt);
+      const response = result.response;
+      const text = JSON.parse(response.text());
+      setGeneratedText(text);
       toast({
         title: "Scroll to view recommendations.",
-      })
-      setPending(false)
+      });
+      setPending(false);
     } catch (error) {
-      setPending(false)
+      setPending(false);
       toast({
         title: "Couldn't get recommendations. Try again!",
-      })
-      console.log(error)
+      });
+      console.log(error);
     }
 
     // window.location.hash = section
     // scrollToSection(section)
   }
 
-  console.log(generatedText)
+  console.log(generatedText);
 
   return (
     <div>
       <div>
-        <h1 className=" text-xl md:text-3xl text-center font-semibold pb-5">
+        <h1 className=" text-xl mt-5 md:text-3xl text-center font-semibold pb-5">
           Upload User Data/Preference
         </h1>
         <div className="flex-wrap md:flex justify-center md:justify-around gap-7 mx-auto mb-5 ">
@@ -159,7 +139,9 @@ replace the ellipses with actual data when providing the recommendations!
                   >
                     <option value="">Select Department</option>
                     <option value="Computer Science">computer science</option>
-                    <option value="Software Engineering">software engineering</option>
+                    <option value="Software Engineering">
+                      software engineering
+                    </option>
                     <option value="Economics">economics</option>
                     <option value="Accounting">accounting</option>
                   </select>
@@ -173,7 +155,9 @@ replace the ellipses with actual data when providing the recommendations!
                   >
                     <option value="">Select Course</option>
                     <option value="System Analysis">system analysis</option>
-                    <option value="Infomation Security">information security</option>
+                    <option value="Infomation Security">
+                      information security
+                    </option>
                     <option value="Programming">programming</option>
                     <option value="Web Development">web development</option>
                   </select>
@@ -192,7 +176,9 @@ replace the ellipses with actual data when providing the recommendations!
                   </select>
                 </LabelInputContainer>
                 <LabelInputContainer className="mb-4">
-                  <Label htmlFor="educationlevel">Preferred Learning Styles</Label>
+                  <Label htmlFor="educationlevel">
+                    Preferred Learning Styles
+                  </Label>
                   <select
                     className="flex h-10 w-full border-none bg-gray-50 dark:bg-zinc-800 text-black dark:text-white shadow-input rounded-md px-3 py-2 text-sm  file:border-0 file:bg-transparent   file:text-sm file:font-medium placeholder:text-neutral-400 dark:placeholder-text-neutral-600 focus-visible:outline-none focus-visible:ring-[2px]  focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-600 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-[0px_0px_1px_1px_var(--neutral-700)] group-hover/input:shadow-none transition duration-400"
                     onChange={(e) => setLearningStyle(e.target.value)}
@@ -214,11 +200,15 @@ replace the ellipses with actual data when providing the recommendations!
                     <option value="">Select Preferred Resource Type</option>
                     <option value="Video Tutorials">Video tutorials</option>
                     <option value="Written Materials">Written materials</option>
-                    <option value="Interactive Exercises">Interactive exercises</option>
+                    <option value="Interactive Exercises">
+                      Interactive exercises
+                    </option>
                   </select>
                 </LabelInputContainer>
                 <LabelInputContainer className="mb-4">
-                  <Label htmlFor="difficultylevel">Preferred Difficulty Level</Label>
+                  <Label htmlFor="difficultylevel">
+                    Preferred Difficulty Level
+                  </Label>
                   <select
                     className="flex h-10 w-full border-none bg-gray-50 dark:bg-zinc-800 text-black dark:text-white shadow-input rounded-md px-3 py-2 text-sm  file:border-0 file:bg-transparent   file:text-sm file:font-medium placeholder:text-neutral-400 dark:placeholder-text-neutral-600 focus-visible:outline-none focus-visible:ring-[2px]  focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-600 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-[0px_0px_1px_1px_var(--neutral-700)] group-hover/input:shadow-none transition duration-400"
                     onChange={(e) => setDifficulty(e.target.value)}
@@ -238,7 +228,7 @@ replace the ellipses with actual data when providing the recommendations!
                       <button
                         type="button"
                         onClick={() => {
-                          DeleteObjective(index)
+                          DeleteObjective(index);
                         }}
                       >
                         <Trash2 className=" w-5 h-5" />
@@ -262,7 +252,7 @@ replace the ellipses with actual data when providing the recommendations!
                         variant="outline"
                         type="button"
                         onClick={() => {
-                          AddObjective()
+                          AddObjective();
                         }}
                       >
                         <Plus />
@@ -272,7 +262,7 @@ replace the ellipses with actual data when providing the recommendations!
                         variant="destructive"
                         type="button"
                         onClick={() => {
-                          setObjectiveInput(false)
+                          setObjectiveInput(false);
                         }}
                       >
                         <X />
@@ -286,7 +276,7 @@ replace the ellipses with actual data when providing the recommendations!
                       variant="outline"
                       type="button"
                       onClick={() => {
-                        setObjectiveInput(true)
+                        setObjectiveInput(true);
                       }}
                     >
                       Add Learning Objectives
@@ -295,7 +285,7 @@ replace the ellipses with actual data when providing the recommendations!
                       variant="destructive"
                       type="button"
                       onClick={() => {
-                        setLearningObjectives([])
+                        setLearningObjectives([]);
                       }}
                     >
                       Delete All
@@ -303,7 +293,10 @@ replace the ellipses with actual data when providing the recommendations!
                   </div>
 
                   <Button className="w-full" type="submit" disabled={pending}>
-                    {pending ? "Fetching Recommendations" : "Get Recommendations"} &nbsp;
+                    {pending
+                      ? "Fetching Recommendations"
+                      : "Get Recommendations"}{" "}
+                    &nbsp;
                     <ArrowRight />
                   </Button>
                 </div>
@@ -325,13 +318,16 @@ replace the ellipses with actual data when providing the recommendations!
                 <span className=" font-bold">University Level:</span> {level}
               </p>
               <p>
-                <span className=" font-bold">Preferred Learning Style:</span> {learningStyle}
+                <span className=" font-bold">Preferred Learning Style:</span>{" "}
+                {learningStyle}
               </p>
               <p>
-                <span className=" font-bold">Preferred Resource Type:</span> {resourceType}
+                <span className=" font-bold">Preferred Resource Type:</span>{" "}
+                {resourceType}
               </p>
               <p>
-                <span className=" font-bold">Preferred Difficulty Level:</span> {difficulty}
+                <span className=" font-bold">Preferred Difficulty Level:</span>{" "}
+                {difficulty}
               </p>
               <p>
                 <span className=" font-bold">Learning Objectives Added:</span>{" "}
@@ -355,5 +351,5 @@ replace the ellipses with actual data when providing the recommendations!
         </div>
       </div>
     </div>
-  )
+  );
 }

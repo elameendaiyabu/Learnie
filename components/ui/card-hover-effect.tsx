@@ -1,73 +1,37 @@
-"use client"
+"use client";
 
-import { cn } from "@/lib/utils"
-import { createClient } from "@/utils/supabase/client"
-import { AnimatePresence, motion } from "framer-motion"
-import { Heart, SquareArrowOutUpRight } from "lucide-react"
-import Link from "next/link"
-import { useState } from "react"
-import { useToast } from "./use-toast"
+import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "framer-motion";
+import { Heart, SquareArrowOutUpRight } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { useToast } from "./use-toast";
 
 export const HoverEffect = ({
   items,
   className,
 }: {
   items: {
-    title: string
-    type: string
-    source: string
-    link: string
-    difficulty: string
-    description: string
-  }[]
-  className?: string
+    title: string;
+    type: string;
+    source: string;
+    link: string;
+    difficulty: string;
+    description: string;
+  }[];
+  className?: string;
 }) => {
-  let [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
-  const { toast } = useToast()
-  const [liked, setLiked] = useState<boolean>(false)
-
-  async function handleLike(
-    e: { preventDefault: () => void },
-    title: string,
-    type: string,
-    source: string,
-    link: string,
-    difficulty: string,
-    description: string
-  ) {
-    e.preventDefault()
-    const supabase = createClient()
-
-    const { data, error } = await supabase
-      .from("liked courses")
-      .insert({
-        title: title,
-        type: type,
-        source: source,
-        link: link,
-        difficulty: difficulty,
-        description: description,
-      })
-      .select()
-
-    if (error) {
-      setLiked(false)
-      console.log(error.message)
-      toast({
-        title: "Login and Try Again",
-      })
-    }
-
-    if (data) {
-      setLiked(true)
-      toast({
-        title: "Course added to likes",
-      })
-    }
-  }
+  let [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const { toast } = useToast();
+  const [liked, setLiked] = useState<boolean>(false);
 
   return (
-    <div className={cn("grid grid-cols-1 md:grid-cols-2  lg:grid-cols-3  py-10", className)}>
+    <div
+      className={cn(
+        "grid grid-cols-1 md:grid-cols-2  lg:grid-cols-3  py-10",
+        className,
+      )}
+    >
       {items.map((item, idx) => (
         <div
           key={idx}
@@ -95,19 +59,7 @@ export const HoverEffect = ({
           </AnimatePresence>
           <Card>
             <div className="grid grid-flow-col justify-between">
-              <form
-                onSubmit={(e) =>
-                  handleLike(
-                    e,
-                    item.title,
-                    item.type,
-                    item.source,
-                    item.link,
-                    item.difficulty,
-                    item.description
-                  )
-                }
-              >
+              <form>
                 <button type="submit">
                   <Heart className="hover:cursor-pointer hover:fill-red-400" />
                 </button>
@@ -128,53 +80,57 @@ export const HoverEffect = ({
         </div>
       ))}
     </div>
-  )
-}
+  );
+};
 
 export const Card = ({
   className,
   children,
 }: {
-  className?: string
-  children: React.ReactNode
+  className?: string;
+  children: React.ReactNode;
 }) => {
   return (
     <div
       className={cn(
         "rounded-2xl  h-full w-full p-4 overflow-hidden bg-muted border border-transparent dark:border-white/[0.2] group-hover:border-slate-700 relative z-20",
-        className
+        className,
       )}
     >
       <div className="relative  z-50">
         <div className="p-4">{children}</div>
       </div>
     </div>
-  )
-}
+  );
+};
 export const CardTitle = ({
   className,
   children,
 }: {
-  className?: string
-  children: React.ReactNode
+  className?: string;
+  children: React.ReactNode;
 }) => {
-  return <h4 className={cn("text-primary font-bold tracking-wide mt-4", className)}>{children}</h4>
-}
+  return (
+    <h4 className={cn("text-primary font-bold tracking-wide mt-4", className)}>
+      {children}
+    </h4>
+  );
+};
 export const CardDescription = ({
   className,
   children,
 }: {
-  className?: string
-  children: React.ReactNode
+  className?: string;
+  children: React.ReactNode;
 }) => {
   return (
     <p
       className={cn(
         "mt-4 text-secondary-foreground tracking-wide leading-relaxed text-sm",
-        className
+        className,
       )}
     >
       {children}
     </p>
-  )
-}
+  );
+};
